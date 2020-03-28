@@ -8,19 +8,31 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  Map data = {};
+
   @override
   Widget build(BuildContext context) {
-    Map data = ModalRoute.of(context).settings.arguments;
+    data = data.isNotEmpty ? data : ModalRoute.of(context).settings.arguments;
     Covid covid = data['covid'];
-    print('Get covid ${covid.country}');
 
     return Scaffold(
       appBar: AppBar(
         title: Text(covid.country),
         centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.list),
+              onPressed: () async {
+                dynamic result =
+                    await Navigator.pushNamed(context, '/countries');
+                setState(() {
+                  data = result;
+                });
+              }),
+        ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(50.0),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
         child: ListView.builder(
             itemCount: covid.cases.length,
             itemBuilder: (context, index) {
@@ -39,34 +51,75 @@ class CaseCard extends StatelessWidget {
 
   final Case item;
 
+  static final DateFormat DF = DateFormat('yyyy-MM-dd');
+  static final DateFormat DF2 = DateFormat('EEE');
+
   @override
   Widget build(BuildContext context) {
-    final DateFormat df = DateFormat('yyyy-MM-dd');
-
-    return Card(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          Text(df.format(item.date)),
-          SizedBox(
-            height: 10,
-          ),
-          Row(
+    return Theme(
+      data: ThemeData(
+          textTheme: TextTheme(
+        body1: TextStyle(fontSize: 20),
+      )),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              Expanded(child: Text('Confirmed')),
-              Text('${item.confirmed}'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    DF.format(item.date),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    DF2.format(item.date),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: <Widget>[
+                  Expanded(child: Text('Confirmed')),
+                  Text('${item.confirmed}'),
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: <Widget>[
+                  Expanded(child: Text('Deaths')),
+                  Text('${item.deaths}'),
+                ],
+              ),
+              item.mortalityRate > 0
+                  ? Column(
+                      children: <Widget>[
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Expanded(child: Text('MortalityRate')),
+                            Text(
+                                '${(1000 * item.mortalityRate).toStringAsFixed(1)}\u2030'),
+                          ],
+                        ),
+                      ],
+                    )
+                  : new Container(width: 0, height: 0)
             ],
           ),
-          SizedBox(
-            height: 10,
-          ),
-          Row(
-            children: <Widget>[
-              Expanded(child: Text('Deaths')),
-              Text('${item.deaths}'),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -9,11 +9,11 @@ class Loading extends StatefulWidget {
 
 class _LoadingState extends State<Loading> {
   void _loadInitialData() async {
-    Covid covid = Covid(country: 'Canada', name: 'canada');
+    Covid covid = Covid(country: 'Canada', name: 'canada', flag: 'CA');
     await covid.getData();
-    Navigator.pushReplacementNamed(context, '/home', arguments: {
-      'covid': covid,
-    });
+    bool success = covid.cases.length > 0;
+    Navigator.pushReplacementNamed(context, '/home',
+        arguments: {'covid': covid});
   }
 
   @override
@@ -25,13 +25,10 @@ class _LoadingState extends State<Loading> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Padding(
-      padding: const EdgeInsets.all(50.0),
-      child: Text('Loading'),
-//      child: SpinKitSquareCircle(
-//        color: Colors.white,
-//        size: 50.0,
-//      ),
-    ));
+      backgroundColor: Colors.blue,
+        body: SpinKitSquareCircle(
+          color: Colors.white,
+          size: 80.0,
+        ));
   }
 }
